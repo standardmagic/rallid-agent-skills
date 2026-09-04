@@ -1,0 +1,14 @@
+{
+  "name": "rallid-agent-skills",
+  "description": "Rallid's Claude skills for staged, owner-approved publishing to a Rallid-hosted site.",
+  "owner": {
+    "name": "Rallid"
+  },
+  "plugins": [
+    {
+      "name": "rallid-publisher",
+      "source": "./providers/claude/plugin/",
+      "description": "Stage pages, events, images and themes for a Rallid-hosted site, and publish only on the owner's approval."
+    }
+  ]
+}

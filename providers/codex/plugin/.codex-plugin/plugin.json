@@ -1,0 +1,24 @@
+{
+  "name": "rallid-publisher",
+  "version": "0.1.0",
+  "description": "Scoped BlackRail page publishing skills for Rallid customers using Codex.",
+  "author": {
+    "name": "Rallid"
+  },
+  "homepage": "https://rallid.com",
+  "keywords": ["rallid", "blackrail", "publishing", "cms"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Rallid Publisher",
+    "shortDescription": "Stage and publish BlackRail pages safely",
+    "longDescription": "Connect Codex to a Rallid-hosted BlackRail staging site with narrowly scoped page credentials, review drafts, and require a separate human-approved production publishing token before anything goes live.",
+    "developerName": "Rallid",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://rallid.com",
+    "defaultPrompt": [
+      "Connect my BlackRail staging site with $connect-rallid-site and verify its scoped token.",
+      "Use $publish-blackrail-pages to stage and review a page, then ask before any production write."
+    ]
+  }
+}

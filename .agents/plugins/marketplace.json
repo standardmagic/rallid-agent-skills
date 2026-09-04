@@ -1,0 +1,20 @@
+{
+  "name": "rallid-agent-skills",
+  "interface": {
+    "displayName": "Rallid"
+  },
+  "plugins": [
+    {
+      "name": "rallid-publisher",
+      "source": {
+        "source": "local",
+        "path": "./providers/codex/plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

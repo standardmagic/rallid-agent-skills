@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish BlackRail pages"
+  short_description: "Draft and publish BlackRail pages safely"
+  default_prompt: "Use $publish-blackrail-pages to stage and review this BlackRail page before asking me to approve production publication."

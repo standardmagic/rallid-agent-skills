@@ -1,0 +1,4 @@
+interface:
+  display_name: "Connect a Rallid site"
+  short_description: "Connect staging with scoped BlackRail access"
+  default_prompt: "Use $connect-rallid-site to connect this agent safely to my Rallid-hosted BlackRail staging site."

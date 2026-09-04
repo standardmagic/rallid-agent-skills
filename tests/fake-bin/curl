@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+printf '%s\n' "$@" > "${RALLID_TEST_CURL_ARGS:?}"
+
+curl_url=""
+curl_auth_file=""
+curl_expect_header_value=false
+for curl_argument in "$@"; do
+  if [[ "$curl_expect_header_value" == true ]]; then
+    if [[ "$curl_argument" == @* ]]; then
+      curl_auth_file="${curl_argument#@}"
+    fi
+    curl_expect_header_value=false
+    continue
+  fi
+  if [[ "$curl_argument" == "--header" ]]; then
+    curl_expect_header_value=true
+    continue
+  fi
+  if [[ "$curl_argument" == https://* ]]; then
+    curl_url="$curl_argument"
+  fi
+done
+
+curl_auth_present=false
+curl_auth_mode=""
+if [[ -n "$curl_auth_file" && -f "$curl_auth_file" ]]; then
+  if grep -q '^Authorization: Bearer ' "$curl_auth_file"; then
+    curl_auth_present=true
+  fi
+  if stat -f '%Lp' "$curl_auth_file" >/dev/null 2>&1; then
+    curl_auth_mode="$(stat -f '%Lp' "$curl_auth_file")"
+  else
+    curl_auth_mode="$(stat -c '%a' "$curl_auth_file")"
+  fi
+fi
+
+if [[ -n "${RALLID_TEST_CURL_META:-}" ]]; then
+  {
+    printf 'authorization_present=%s\n' "$curl_auth_present"
+    printf 'authorization_file=%s\n' "$curl_auth_file"
+    printf 'authorization_mode=%s\n' "$curl_auth_mode"
+    printf 'url=%s\n' "$curl_url"
+  } > "$RALLID_TEST_CURL_META"
+fi
+
+if [[ "$curl_url" == */api/v1/token ]]; then
+  if [[ "$curl_auth_present" != true || "${RALLID_TEST_TOKEN_VALID:-1}" != "1" ]]; then
+    printf '{"error":"Invalid, revoked, or expired token."}\n'
+    exit 22
+  fi
+  curl_token_origin="${RALLID_TEST_TOKEN_ORIGIN:-${curl_url%/api/v1/token}}"
+  curl_token_scopes="${RALLID_TEST_TOKEN_SCOPES_JSON:-[\"pages:read\",\"pages:edit\"]}"
+  printf '{"ok":true,"site_name":"Test site","site_origin":"%s","scopes":%s,"expires_at":"2030-01-01T00:00:00Z"}\n' \
+    "$curl_token_origin" "$curl_token_scopes"
+  printf '200\n'
+  exit 0
+fi
+
+if [[ "$curl_url" == */api/v1/pages* && "$curl_auth_present" == true && "${RALLID_TEST_REJECT_PUBLIC_AUTH:-0}" == "1" ]]; then
+  printf '{"error":"Authorization was sent on a public read."}\n'
+  exit 97
+fi
+
+printf '{"ok":true}\n'
+printf '200\n'

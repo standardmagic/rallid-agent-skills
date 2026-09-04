@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "rallid-publisher",
+  "version": "0.2.0",
+  "description": "Update a Rallid-hosted site from Claude: pages, events and other plugin records, images, and theme packages — staged first, and published only after the site owner approves.",
+  "author": {
+    "name": "Rallid",
+    "url": "https://rallid.com"
+  },
+  "homepage": "https://rallid.com",
+  "keywords": [
+    "rallid",
+    "blackrail",
+    "publishing",
+    "cms",
+    "website",
+    "pages",
+    "events",
+    "media",
+    "themes",
+    "connector"
+  ]
+}
