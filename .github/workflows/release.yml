@@ -1,0 +1,47 @@
+name: Release
+
+# Tag a commit (for example v0.3.0) and the claude.ai skill zip is built from
+# that exact tree and attached to a GitHub Release. The portal's
+# RALLID_CLAUDE_SKILL_ZIP_URL can point at the latest release asset.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and attach the skill zip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify before releasing
+        run: |
+          node scripts/sync-skills.mjs
+          git diff --quiet || { echo "::error::providers/ are stale at this tag"; exit 1; }
+          node tests/package-structure.mjs
+          bash tests/helper-safety.sh
+
+      - name: Build the claude.ai skill zip
+        run: node scripts/build-claude-ai-zip.mjs
+
+      - name: Checksum
+        run: |
+          cd dist
+          sha256sum publish-rallid-site.zip > publish-rallid-site.zip.sha256
+          cat publish-rallid-site.zip.sha256
+
+      - name: Create the release with the zip attached
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/publish-rallid-site.zip
+            dist/publish-rallid-site.zip.sha256
+          generate_release_notes: true

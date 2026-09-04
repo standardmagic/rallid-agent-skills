@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Sync, package tests, helper safety, zip build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Provider packages are in sync with skills/
+        run: |
+          node scripts/sync-skills.mjs
+          if ! git diff --quiet; then
+            echo "::error::providers/ are stale — run 'node scripts/sync-skills.mjs' and commit the result"
+            git --no-pager diff --stat
+            exit 1
+          fi
+
+      - name: Package structure tests
+        run: node tests/package-structure.mjs
+
+      - name: Helper safety tests
+        run: bash tests/helper-safety.sh
+
+      - name: Build the claude.ai skill zip
+        run: node scripts/build-claude-ai-zip.mjs
+
+      - name: Keep the built zip for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish-rallid-site
+          path: dist/publish-rallid-site.zip
+          if-no-files-found: error
+          retention-days: 14
